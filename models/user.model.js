@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -9,8 +9,7 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true,
-        unique: true,
+        // unique: true,
         trim: true
     },
     password: {
@@ -21,9 +20,9 @@ const userSchema = new mongoose.Schema({
         type: Array,
         default: []
     }
-}, { timestamps: true })//timestamps is used to store the date and time of the creation and update of the document
+}, { timestamps: true });
 
-
-const User = mongoose.model('user', userSchema)
+const User = mongoose.model('user', userSchema);
 
 module.exports = User;
+
