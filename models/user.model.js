@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const User = mongoose.model('user', userSchema);
+//('user') is the name of the collection and userSchema is the schema for the collection
 
 module.exports = User;
 

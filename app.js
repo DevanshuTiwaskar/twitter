@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const userModel = require("./models/user.model");
+const tweetModel = require("./models/tweet.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const flash = require('connect-flash');
@@ -31,6 +32,7 @@ app.get('/', (req, res) => {
 });
 
 
+///this is for the profile page
 app.get('/profile',isLoggedIn,async (req, res) => {
     let user = await userModel.findOne({username: req.user.username})//finding the user in the database
     res.render('profile',{user});
@@ -63,7 +65,7 @@ app.post("/register", async (req, res) => {
                 password: hash // Store the hashed password instead of the plain password
             });
 
-            // Create a JWT token using the email as the payload
+            // Create a JWT token using the username  as the payload
             // "secret" is the signing key, replace it with a secure key in production
             let token = jwt.sign({ username }, "secret");
 
@@ -79,6 +81,7 @@ app.post("/register", async (req, res) => {
 
 app.get("/login", (req, res) => {
     res.render("login",{error: req.flash("error")[0]});
+
 })
 
 app.post("/login",async (req, res) => {
@@ -92,7 +95,7 @@ app.post("/login",async (req, res) => {
     ///comparing the password
     bcrypt.compare(password, user.password, function(err,result){
         if(result){
-            let token = jwt.sign({username}, "secret"); ///signing the token with the email
+            let token = jwt.sign({username}, "secret"); ///signing the token with the username
             res.cookie("token", token)
             res.redirect("/profile");
         }
@@ -107,6 +110,36 @@ app.get("/logout", (req, res) => {
     res.cookie("token", "");///deleting the token
     res.redirect("/login");
 })
+
+
+///this is for the feed page
+app.get("/feed",isLoggedIn,async (req, res) => {
+    let tweets = await tweetModel.find(); ///finding the tweets in the database
+    res.render("feed",{tweets});
+})
+
+
+
+///this is for the createpost page
+app.get("/createpost",isLoggedIn, (req, res) => { 
+    ///isLoggedIn is a middleware to check if the user is logged in
+    res.render("createpost");
+})
+
+
+app.post("/createpost/:usenamw", isLoggedIn,async (req, res) => {
+    let { tweet } = req.body;
+    ///creating the tweet in the database
+    await tweetModel.create({ 
+        tweet,
+        username: req.user.username
+    })
+    res.redirect("/feed")// after creating the post redirecting to the feed page
+})
+
+
+
+
 
 function isLoggedIn(req, res, next) {
     // Check if the user is logged in by verifying token in cookies
